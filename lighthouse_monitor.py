@@ -36,17 +36,22 @@ def load_config() -> dict:
     else:
         config = {}
     
+    # Helper to get env var, treating empty string as not set
+    def env_or(key, default):
+        val = os.environ.get(key, "")
+        return val if val else default
+    
     # Environment variables override config file
     return {
-        "urls": config.get("urls", os.environ.get("LIGHTHOUSE_URLS", "").split(",") if os.environ.get("LIGHTHOUSE_URLS") else []),
-        "api_key": os.environ.get("PAGESPEED_API_KEY", config.get("api_key", "")),
-        "threshold": int(os.environ.get("ALERT_THRESHOLD", config.get("threshold", DEFAULT_THRESHOLD))),
-        "smtp_host": os.environ.get("SMTP_HOST", config.get("smtp_host", "smtp.gmail.com")),
-        "smtp_port": int(os.environ.get("SMTP_PORT", config.get("smtp_port", 587))),
-        "smtp_user": os.environ.get("SMTP_USER", config.get("smtp_user", "")),
-        "smtp_password": os.environ.get("SMTP_PASSWORD", config.get("smtp_password", "")),
-        "email_from": os.environ.get("EMAIL_FROM", config.get("email_from", "")),
-        "email_to": os.environ.get("EMAIL_TO", config.get("email_to", "")),
+        "urls": os.environ.get("LIGHTHOUSE_URLS", "").split(",") if os.environ.get("LIGHTHOUSE_URLS") else config.get("urls", []),
+        "api_key": env_or("PAGESPEED_API_KEY", config.get("api_key", "")),
+        "threshold": int(env_or("ALERT_THRESHOLD", config.get("threshold", DEFAULT_THRESHOLD))),
+        "smtp_host": env_or("SMTP_HOST", config.get("smtp_host", "smtp.gmail.com")),
+        "smtp_port": int(env_or("SMTP_PORT", config.get("smtp_port", 587))),
+        "smtp_user": env_or("SMTP_USER", config.get("smtp_user", "")),
+        "smtp_password": env_or("SMTP_PASSWORD", config.get("smtp_password", "")),
+        "email_from": env_or("EMAIL_FROM", config.get("email_from", "")),
+        "email_to": env_or("EMAIL_TO", config.get("email_to", "")),
         "categories": config.get("categories", CATEGORIES),
     }
 
