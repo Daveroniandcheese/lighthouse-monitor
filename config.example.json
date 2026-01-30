@@ -1,0 +1,15 @@
+{
+  "urls": [
+    "https://example.com",
+    "https://example.com/products"
+  ],
+  "api_key": "",
+  "threshold": 5,
+  "categories": ["performance", "accessibility", "best-practices", "seo"],
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "smtp_user": "",
+  "smtp_password": "",
+  "email_from": "",
+  "email_to": ""
+}
