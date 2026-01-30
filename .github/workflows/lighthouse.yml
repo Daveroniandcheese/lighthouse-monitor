@@ -1,0 +1,51 @@
+name: Lighthouse Monitor
+
+on:
+  # Run every Sunday at 8am UTC
+  schedule:
+    - cron: '0 8 * * 0'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Needed to commit history.json updates
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run Lighthouse Monitor
+        env:
+          LIGHTHOUSE_URLS: ${{ secrets.LIGHTHOUSE_URLS }}
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+          ALERT_THRESHOLD: ${{ secrets.ALERT_THRESHOLD }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python lighthouse_monitor.py
+      
+      - name: Commit updated history
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add history.json
+          git diff --staged --quiet || git commit -m "Update Lighthouse history [skip ci]"
+          git push
